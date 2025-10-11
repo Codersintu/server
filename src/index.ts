@@ -7,7 +7,7 @@ dotenv.config()
 const port = process.env.PORT || 4000 
 const app = express()
 app.use(cors({
-    origin:['https://second-brain-j5vd.vercel.app'],
+    origin:['https://server-7nl8.vercel.app'],
     methods:'GET,PUT,POST,DELETE',
     credentials:true
 }))
