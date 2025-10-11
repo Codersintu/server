@@ -4,6 +4,7 @@ import cors from "cors"
 import authRouter from "./router/auth.js"
 import dotenv from "dotenv"
 dotenv.config()
+const port = process.env.PORT || 4000 
 const app = express()
 app.use(cors({
     origin:['https://second-brain-j5vd.vercel.app'],
@@ -25,4 +26,6 @@ app.use("/api/v1", authRouter)
 app.get("/", (req, res) => {
   res.send("✅ Server is running successfully!");
 });
-
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
