@@ -13,7 +13,7 @@ declare global {
 
 export const userMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const header = req.headers["authorization"];
-  const decoded = jwt.verify(header as string, process.env.jwt_password ?? "your_jwt_secret_key") as { id: string } | undefined;
+  const decoded = jwt.verify(header as string, process.env.jwt_password || "") as { id: string } | undefined;
   if (decoded) {
     req.userId = decoded.id;
     next()
