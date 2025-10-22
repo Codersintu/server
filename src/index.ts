@@ -19,7 +19,7 @@ const app = express()
 app.use(express.json())
 
 app.use(cors({
-    origin:['https://second-brain-delta-kohl.vercel.app'],
+    origin:['http://localhost:5173'],
     methods:'GET,PUT,POST,DELETE',
     credentials:true
 }))
@@ -69,7 +69,7 @@ app.post('/upload',userMiddleware, upload.single('file'), async(req, res) => {
 app.get('/my-memories',userMiddleware, async(req, res) => {
   try {
     const memories = await Memory.find({ userId: req.userId });
-    res.json(memories);
+    res.json({memories});
   } catch (error) {
     res.status(500).send("Error fetching memories.");
   }
