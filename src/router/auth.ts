@@ -92,52 +92,59 @@ router.delete("/content",userMiddleware, async(req, res) => {
     }
     
 });
-router.post("/brain/share",userMiddleware,async (req, res) => {
-    const {share}=req.body;
-    try {
-        if(share){
-       const Hash=await Link.create({
-        userId:req.userId,
-        hash:random(10)
-       })
-      return res.json(Hash);
-    }else{
-       await Link.deleteOne({userId:req.userId})
+
+router.post("/brain/share", userMiddleware, async (req, res) => {
+  const { share } = req.body;
+
+  try {
+    if (share) {
+      const existing = await Link.findOne({ userId: req.userId });
+      if (existing) {
+        return res.json({ hash: existing.hash });
+      }
+
+      const link = await Link.create({
+        userId: req.userId,
+        hash: random(10),
+      });
+
+      return res.json({ hash: link.hash });
+    } else {
+      await Link.deleteOne({ userId: req.userId });
+      return res.json({ message: "Sharing disabled" });
     }
-    } catch (error) {
-        res.status(500).json(error)
-    }
-    
-    
+  } catch (error) {
+    console.error("Error in /brain/share:", error);
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
-router.get("/brain/:sharelink",userMiddleware,async(req,res)=>{
-    const hash=req.params.sharelink;
-    const link=await Link.findOne({
-        hash
-    })
+router.get("/brain/:sharelink", async (req, res) => {
+  try {
+    const hash = req.params.sharelink;
+    console.log("hash",hash)
+
+    const link = await Link.findOne({ hash });
+    console.log("link",link)
     if (!link) {
-        res.status(411).json("Incorrect message")
-        return;
+      return res.status(404).json({ message: "Invalid share link" });
     }
 
-        const content=await Content.find({userId:link.userId})
-        const user=await User.findOne({
-            _id:link.userId
-        })
-        if (!user) {
-            res.status(411).json({
-                message:"User not found, error should be happen"
-            })
-            return
-        }
+    const user = await User.findById(link.userId).select("username");
+    console.log("user",user)
+    const content = await Content.find({ userId: link.userId });
+    console.log("content",content)
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-        res.json({
-            // link:link,
-            username:user.username,
-            content:content
-        })
-    
-})
-
+    res.json({
+      username: user.username,
+      content,
+    });
+  } catch (error) {
+    console.error("Error fetching shared brain:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 export default router;
